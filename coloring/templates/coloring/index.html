@@ -85,7 +85,7 @@
 				var tool = new paper.Tool();
         
 				tool.onMouseDown = function (event) {
-				    var hit = mandala.item.hitTest(event.point, { tolerance: 10, fill: true });
+				    var hit = mandala.item.hitTest(event.point, { tolerance:0, fill: true });
 				    if (hit) {
 				        hit.item.fillColor = cp.history[cp.history.length - 1];
 				    }
