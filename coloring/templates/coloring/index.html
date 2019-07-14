@@ -11,21 +11,23 @@
 
 	<style type="text/css">
 		#color-palette {
-			width: 300px;
+			width: 120px;
 			background-color: #f1f1f1;
 			display: flex;
 			flex-wrap: wrap;
 			position: absolute;
-			top: 0;
+			bottom: 0;
+      right: 0;
+      box-shadow: 10px 10px 10px 10px 
 		}
 
 		.swatch {
-			width: 24px;
-			height: 24px;
-			-moz-border-radius: 12px;
-			-webkit-border-radius: 12px;
-			border-radius: 12px;
-			margin: 3px;
+			width: 20px;
+			height: 20px;
+		  -moz-border-radius: 10px;
+			-webkit-border-radius: 10px;
+			border-radius: 10px;
+			margin: 2px;
 		}
 
 		#myCanvas {
@@ -35,6 +37,34 @@
 		    margin-right: auto;
 		    display: block;
 		}
+    
+    .tool {
+      width: 120px;
+			background-color: #ffffff;
+			display: flex;
+			flex-wrap: wrap;
+			position: fixed;
+			top: 0;
+      right: 0;
+      box-shadow: 10px -10px 10px 10px
+    }
+    
+    #brush_eyedrop {
+      background-color: #f1f1f1;
+    }
+    
+    #text1 {
+      font: 12px roboto, sans-serif;
+      color: #757575;
+      background-color: #f1f1f1;
+      
+    }
+    
+    #text2 {
+      font: 12px roboto, sans-serif;
+      color: #757575;
+    }
+    
 	</style>
 
 	<script type="text/javascript" canvas="canvas">
@@ -45,7 +75,7 @@
 			var mandala = {
 				item: null,
 				lastClicked: null,
-				filePath: '/static/coloring/images/mandala-freepik.svg'
+				filePath: '/static/coloring/images/beach_simple.svg'
 			};	
 
 			// color palette
@@ -114,7 +144,11 @@
 				$.getJSON('/static/coloring/vendors/material/material-colors.json', function(colors){
 					var keys = Object.keys(colors);
 					for (var i = keys.length - 1; i >= 0; i--) {
-						cp.options.push(colors[keys[i]][500]);
+						cp.options.push(colors[keys[i]][100]);
+            cp.options.push(colors[keys[i]][300]);
+            cp.options.push(colors[keys[i]][500]);
+            cp.options.push(colors[keys[i]][700]);
+            cp.options.push(colors[keys[i]][900]);
 					}
 					createColorPalette(cp.options);
 				});
@@ -154,5 +188,32 @@
 
 	<canvas id="myCanvas" width="750px" height="750px"></canvas>
 	<div id="color-palette"></div>
+  <div class="tool">
+    <div class="row" style="padding: 10px 0px 10px 0px" >
+      <input type="image" src="/static/coloring/images/undo.svg" id="undo" style="height: 30px;padding: 0px 0px 0px 3px"/>
+      <input type="image" src="/static/coloring/images/redo.svg" id="redo" style="height: 30px; padding: 0px 0px 0px 3px"/>
+      <input type="image" src="/static/coloring/images/done.svg" id="done" style="float: right; height: 30px; padding: 0px 0px 0px 16px"/>
+    </div>
+    
+    <div class="row" style="padding: 10px 0px 0px 0px" id="brush_eyedrop">
+      <input type="image" src="/static/coloring/images/brush_bw.svg" id="brush" style="height: 36px; padding: 0px 0px 0px 10px"/>
+      <input type="image" src="/static/coloring/images/eyedropper_bw.svg" id="eyedropper" style="height: 36px; padding: 0px 20px 0px 14px"/>
+    </div>
+    
+    <div class="row" style="padding: 0px 0px 10px 0px" id="text1">
+      &nbsp;&nbsp;&nbsp;&nbsp;Brush&nbsp;&nbsp;Eyedropper&nbsp;&nbsp;
+    </div>
+    
+    <div class="row" style="padding: 10px 0px 0px 0px" id="text2">
+      &nbsp;&nbsp;&nbsp;&nbsp;Texture
+    </div>
+    
+    <div class="row" style="padding: 0px 0px 10px 0px" id="texture">
+      <input type="image" src="/static/coloring/images/brush_bw.svg" id="brush" style="height: 24px;"/>
+      <input type="image" src="/static/coloring/images/paint_bucket_bw.svg" id="bucket" style="height: 24px;"/>
+    </div>
+  </div>
+  
+  
 </body>
 </html>
