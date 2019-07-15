@@ -46,7 +46,7 @@
 			position: fixed;
 			top: 0;
       right: 0;
-      box-shadow: 10px -10px 10px 10px
+      box-shadow: 10px -20px 10px 10px
     }
     
     #brush_eyedrop {
@@ -65,10 +65,27 @@
       color: #757575;
     }
     
+    #text3 {
+      font: 12px roboto, sans-serif;
+      color: #757575;
+      background-color: #f1f1f1;
+    }
+    
+    .color {
+      top: 6px;
+      right: 130px;
+      position: absolute;
+      border-color: #ddd;
+      font: 12px roboto, sans-serif;
+      color: #757575;
+      text-align: right;
+    }
+    
 	</style>
 
 	<script type="text/javascript" canvas="canvas">
-		window.onload = function() {
+    var draw, pick, tool;
+    window.onload = function() {
 			var canvas = document.getElementById('myCanvas');
 
 			// coloring page
@@ -111,17 +128,52 @@
 
 			// your custom interaction goes here!
 			// you may replace everything
-			function myCustomInteraction() {
-				var tool = new paper.Tool();
+      function myCustomInteraction() {
+        //Current color
+        var cc = document.getElementById("current-color");
+        cc.style.backgroundColor = cp.history[cp.history.length - 1];
         
-				tool.onMouseDown = function (event) {
-				    var hit = mandala.item.hitTest(event.point, { tolerance:0, fill: true });
-				    if (hit) {
-				        hit.item.fillColor = cp.history[cp.history.length - 1];
-				    }
-				}
-			}
-
+        //Fill color
+        tool = new paper.Tool();
+        tool.onMouseDown = function (event) {
+			  	var hit = mandala.item.hitTest(event.point, { tolerance:0, fill: true });
+			  	if (hit) {
+			  	  hit.item.fillColor = cp.history[cp.history.length - 1];
+			  	}
+        }
+        
+        //Eyedropper
+        pick = new paper.Tool();
+        pick.onMouseUp = function (event) {
+          var hit = mandala.item.hitTest(event.point);
+          if (hit) {
+			  	  var c = hit.item.fillColor._components;
+            var f = (c[0] * 255).toString();
+            var s = (c[1] * 255).toString();
+            var t = (c[2] * 255).toString();
+            var str = "rgb(" + f + ", " + s + ", " + t + ")"
+            cp.history.push(str);
+            var cc = document.getElementById("current-color");
+            cc.style.backgroundColor = cp.history[cp.history.length - 1];
+			  	}
+        }
+        
+        //Brush tool
+        draw = new paper.Tool();
+        var myPath;
+        draw.onMouseDown = function (event) {
+	        myPath = new paper.Path();
+	        myPath.strokeColor = cp.history[cp.history.length - 1];
+          myPath.strokeWidth = 10;
+          myPath.add(event.point);
+        }
+        draw.onMouseDrag = function (event) {
+	        myPath.add(event.point);
+        }
+        draw.onMouseUp = function (event) {
+	        myPath.add(event.point);
+        }
+      }
 
 			// create a color palette with the given colors
 			function createColorPalette(colors){
@@ -132,7 +184,9 @@
 									   .addClass("swatch");
 					$swatch.click(function(){
 						// add color to the color palette history
-					  	cp.history.push($(this).css("background-color"));
+					  cp.history.push($(this).css("background-color"));
+            var cc = document.getElementById("current-color");
+            cc.style.backgroundColor = cp.history[cp.history.length - 1];
 					});
 					cp.$container.append($swatch);
 				}
@@ -188,29 +242,45 @@
 
 	<canvas id="myCanvas" width="750px" height="750px"></canvas>
 	<div id="color-palette"></div>
+  <div class="color">
+    <div class="row">
+      <button type="button" class="btn btn-lg" id="current-color" style="background-color:black;width:36px;height:36px;"></button>
+    </div>
+    <div class="row">
+      Current
+    </div>
+    <div class="row">
+      color
+    </div>
+  </div>
+  
   <div class="tool">
-    <div class="row" style="padding: 10px 0px 10px 0px" >
+    <div class="row" style="padding: 10px 0px 5px 0px" >
       <input type="image" src="/static/coloring/images/undo.svg" id="undo" style="height: 30px;padding: 0px 0px 0px 3px"/>
       <input type="image" src="/static/coloring/images/redo.svg" id="redo" style="height: 30px; padding: 0px 0px 0px 3px"/>
       <input type="image" src="/static/coloring/images/done.svg" id="done" style="float: right; height: 30px; padding: 0px 0px 0px 16px"/>
     </div>
     
-    <div class="row" style="padding: 10px 0px 0px 0px" id="brush_eyedrop">
-      <input type="image" src="/static/coloring/images/brush_bw.svg" id="brush" style="height: 36px; padding: 0px 0px 0px 10px"/>
-      <input type="image" src="/static/coloring/images/eyedropper_bw.svg" id="eyedropper" style="height: 36px; padding: 0px 20px 0px 14px"/>
+    <div class="row" style="padding: 10px 0px 10px 0px" id="brush_eyedrop">
+      <input type="image" src="/static/coloring/images/brush_bw.svg" id="brush" onclick="draw.activate();" style="height: 30px; padding: 0px 0px 0px 8px"/>
+      <input type="image" src="/static/coloring/images/paint_bucket_bw.svg" id="bucket" onclick="tool.activate();" style="height: 30px; padding: 0px 0px 0px 3px"/>
+      <input type="image" src="/static/coloring/images/eyedropper_bw.svg" id="eyedropper" onclick="pick.activate();" style="height: 30px; padding: 0px 7px 0px 3px"/>
     </div>
     
-    <div class="row" style="padding: 0px 0px 10px 0px" id="text1">
-      &nbsp;&nbsp;&nbsp;&nbsp;Brush&nbsp;&nbsp;Eyedropper&nbsp;&nbsp;
-    </div>
-    
-    <div class="row" style="padding: 10px 0px 0px 0px" id="text2">
+    <div class="row" style="padding: 10px 0px 5px 0px" id="text2">
       &nbsp;&nbsp;&nbsp;&nbsp;Texture
     </div>
     
-    <div class="row" style="padding: 0px 0px 10px 0px" id="texture">
-      <input type="image" src="/static/coloring/images/brush_bw.svg" id="brush" style="height: 24px;"/>
-      <input type="image" src="/static/coloring/images/paint_bucket_bw.svg" id="bucket" style="height: 24px;"/>
+    <div class="row" style="padding: 5px 0px 4px 0px" id="texture">
+      <input type="image" src="/static/coloring/images/water_pre.jpeg" id="water" style="height: 30px; padding: 0px 0px 3px 10px"/>
+      <input type="image" src="/static/coloring/images/sky_pre.jpeg" id="sky" style="height: 30px; padding: 0px 0px 3px 10px"/>
+      <input type="image" src="/static/coloring/images/wood1_pre.jpg" id="wood1" style="height: 30px; padding: 0px 0px 3px 10px"/>
+      <input type="image" src="/static/coloring/images/wood2_pre.jpeg" id="wood2" style="height: 30px; padding: 0px 0px 0px 10px"/>
+    </div>
+    
+    <div class="row" style="padding: 10px 0px 3px 0px" id="text3">
+      &nbsp;&nbsp;&nbsp;&nbsp;Color&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </div>
   </div>
   
